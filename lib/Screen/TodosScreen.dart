@@ -76,8 +76,12 @@ class _TodosScreenState extends State<TodosScreen> {
     await batch.commit();
   }
 
-  void updateSelectedDocument(String documentId) async {
-
+  void updateSelectedDocument(String documentId, String todoName, String todoTime) async {
+    final docRef = FirebaseFirestore.instance.collection('Todos').doc(documentId);
+    await docRef.update({
+      'todo_name': todoName,
+      'todo_time': todoTime
+    });
   }
 
   @override
@@ -285,6 +289,9 @@ class _TodosScreenState extends State<TodosScreen> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           GestureDetector(
+                                            onTap: () {
+
+                                            },
                                             child: const Text("Edit",
                                                 style: TextStyle(
                                                     fontSize: 15,
