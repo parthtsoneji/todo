@@ -1,8 +1,7 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
-import '../Services/Services.dart';
 
 class TodosScreen extends StatefulWidget {
   const TodosScreen({Key? key}) : super(key: key);
@@ -20,37 +19,46 @@ class _TodosScreenState extends State<TodosScreen> {
   int index = 0;
   bool unChecked = false;
   String? documentId;
-  DateTime date = DateTime.now();
-  TimeOfDay? _selectedTime;
+  TimeOfDay timeOfDay = TimeOfDay.now();
   final selectedIndexes = <int>[];
+  String? datetime;
   final CollectionReference Todos =
   FirebaseFirestore.instance.collection('Todos');
 
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? pickedTime =
-    await showTimePicker(context: context, initialTime: TimeOfDay.now());
-    if (pickedTime != null && pickedTime != _selectedTime) {
+  Future _selectTime(BuildContext context) async {
+    var time = await showTimePicker(
+        context: context,
+        initialTime: timeOfDay);
+
+    if (time != null) {
       setState(() {
-        _selectedTime = pickedTime;
+         datetime = "${time.hour}:${time.minute}";
       });
     }
   }
 
   Future<void> addStudent() async {
-    DateTime dateTime = DateTime.now();
-    String yourDateTime = DateFormat('hh:mm').format(dateTime);
-    await Todos.add({
+        await Todos.add({
       'todo_name': nameController.text,
-      'todo_time': yourDateTime,
+      'todo_time':datetime,
     }).then((value) {
-      print("Todo added successfully!");
       setState(() {
         nameController.clear();
-        _selectedTime = Timestamp.now() as TimeOfDay?;
+        datetime = null;
       });
     }).catchError((error) {
-      print("Error adding todo: $error");
     });
+  }
+
+  void deleteSelectedDocuments(List<String> documentIds) async {
+    final batch = FirebaseFirestore.instance.batch();
+    final collectionRef = FirebaseFirestore.instance.collection('Todos');
+
+    for (final id in documentIds) {
+      final docRef = collectionRef.doc(id);
+      batch.delete(docRef);
+    }
+    await batch.commit();
   }
 
   @override
@@ -75,15 +83,30 @@ class _TodosScreenState extends State<TodosScreen> {
               ),
               body: Padding(
                   padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width / 10,
-                      top: MediaQuery.of(context).size.height / 10,
-                      right: MediaQuery.of(context).size.width / 10),
+                      left: MediaQuery
+                          .of(context)
+                          .size
+                          .width / 10,
+                      top: MediaQuery
+                          .of(context)
+                          .size
+                          .height / 10,
+                      right: MediaQuery
+                          .of(context)
+                          .size
+                          .width / 10),
                   child: SingleChildScrollView(
                       child: Column(children: [
                         Padding(
                           padding: EdgeInsets.only(
-                              left: MediaQuery.of(context).size.width / 50,
-                              right: MediaQuery.of(context).size.width / 50),
+                              left: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width / 50,
+                              right: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width / 50),
                           child: Stack(children: [
                             Container(
                                 height: 50,
@@ -95,9 +118,18 @@ class _TodosScreenState extends State<TodosScreen> {
                                   alignment: Alignment.centerLeft,
                                   child: Padding(
                                     padding: EdgeInsets.only(
-                                        top: MediaQuery.of(context).size.height / 55,
-                                        left: MediaQuery.of(context).size.width / 33,
-                                        right: MediaQuery.of(context).size.width / 15),
+                                        top: MediaQuery
+                                            .of(context)
+                                            .size
+                                            .height / 55,
+                                        left: MediaQuery
+                                            .of(context)
+                                            .size
+                                            .width / 33,
+                                        right: MediaQuery
+                                            .of(context)
+                                            .size
+                                            .width / 15),
                                     child: TextFormField(
                                       controller: nameController,
                                       style: const TextStyle(
@@ -115,8 +147,14 @@ class _TodosScreenState extends State<TodosScreen> {
                                 )),
                             Padding(
                               padding: EdgeInsets.only(
-                                  left: MediaQuery.of(context).size.width / 1.85,
-                                  top: MediaQuery.of(context).size.height / 100),
+                                  left: MediaQuery
+                                      .of(context)
+                                      .size
+                                      .width / 1.85,
+                                  top: MediaQuery
+                                      .of(context)
+                                      .size
+                                      .height / 100),
                               child: GestureDetector(
                                 onTap: () async {
                                   _selectTime(context);
@@ -127,7 +165,10 @@ class _TodosScreenState extends State<TodosScreen> {
                             ),
                             Padding(
                               padding: EdgeInsets.only(
-                                  left: MediaQuery.of(context).size.width / 1.6),
+                                  left: MediaQuery
+                                      .of(context)
+                                      .size
+                                      .width / 1.6),
                               child: GestureDetector(
                                 onTap: () async {
                                   await addStudent();
@@ -151,14 +192,21 @@ class _TodosScreenState extends State<TodosScreen> {
                         ),
                         Padding(
                           padding: EdgeInsets.only(
-                              top: MediaQuery.of(context).size.height / 12),
+                              top: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .height / 12),
                           child: Column(children: [
                             Padding(
                               padding: EdgeInsets.only(
-                                  left: MediaQuery.of(context).size.width / 2),
+                                  left: MediaQuery
+                                      .of(context)
+                                      .size
+                                      .width / 2),
                               child: const Text(
                                 'Reminder',
-                                style: TextStyle(color: Colors.white, fontSize: 15),
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 15),
                               ),
                             ),
                             Container(
@@ -188,14 +236,17 @@ class _TodosScreenState extends State<TodosScreen> {
                                                   BorderRadius.circular(10),
                                                 ),
                                                 side: const BorderSide(
-                                                    width: 3, color: Color(0xFFBB1EF1)),
+                                                    width: 3,
+                                                    color: Color(0xFFBB1EF1)),
                                                 checkColor: Colors.black,
-                                                activeColor: const Color(0xFFBB1EF1),
+                                                activeColor: const Color(
+                                                    0xFFBB1EF1),
                                                 controlAffinity:
                                                 ListTileControlAffinity.leading,
                                                 title: Row(
                                                   mainAxisAlignment:
-                                                  MainAxisAlignment.spaceBetween,
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                                   children: [
                                                     Text(
                                                       todo.data()['todo_name'],
@@ -213,13 +264,16 @@ class _TodosScreenState extends State<TodosScreen> {
                                                     ),
                                                   ],
                                                 ),
-                                                value: selectedIndexes.contains(index),
+                                                value: selectedIndexes.contains(
+                                                    index),
                                                 onChanged: (bool? value) {
                                                   setState(() {
                                                     if (value!) {
-                                                      selectedIndexes.add(index);
+                                                      selectedIndexes.add(
+                                                          index);
                                                     } else {
-                                                      selectedIndexes.remove(index);
+                                                      selectedIndexes.remove(
+                                                          index);
                                                     }
                                                   });
                                                 },
@@ -227,7 +281,10 @@ class _TodosScreenState extends State<TodosScreen> {
                                             }),
                                         Padding(
                                           padding: EdgeInsets.only(
-                                              top: MediaQuery.of(context).size.height /
+                                              top: MediaQuery
+                                                  .of(context)
+                                                  .size
+                                                  .height /
                                                   2.2),
                                           child: Container(
                                             height: 40,
@@ -241,15 +298,18 @@ class _TodosScreenState extends State<TodosScreen> {
                                                       color: Colors.white)
                                                 ],
                                                 border: Border.all(
-                                                    color: const Color(0xFF7F39A9),
+                                                    color: const Color(
+                                                        0xFF7F39A9),
                                                     width: 3)),
                                             child: Padding(
                                               padding: EdgeInsets.only(
-                                                  left: MediaQuery.of(context)
+                                                  left: MediaQuery
+                                                      .of(context)
                                                       .size
                                                       .width /
                                                       30,
-                                                  right: MediaQuery.of(context)
+                                                  right: MediaQuery
+                                                      .of(context)
                                                       .size
                                                       .width /
                                                       30),
@@ -261,11 +321,11 @@ class _TodosScreenState extends State<TodosScreen> {
                                                       style: TextStyle(
                                                           fontSize: 15,
                                                           color: Colors.white,
-                                                          fontWeight: FontWeight.bold)),
+                                                          fontWeight: FontWeight
+                                                              .bold)),
                                                   GestureDetector(
-                                                    onTap: () async {
-                                                      AuthService()
-                                                          .deleteSelectedDocuments(
+                                                    onTap: () {
+                                                      deleteSelectedDocuments(
                                                           selectedIndexes
                                                               .map((index) =>
                                                           todos[index].id)
@@ -279,7 +339,8 @@ class _TodosScreenState extends State<TodosScreen> {
                                                       style: TextStyle(
                                                           fontSize: 15,
                                                           color: Colors.white,
-                                                          fontWeight: FontWeight.bold),
+                                                          fontWeight: FontWeight
+                                                              .bold),
                                                     ),
                                                   )
                                                 ],
