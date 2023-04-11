@@ -191,11 +191,20 @@ class _TodosScreenState extends State<TodosScreen> {
                             .collection('Todos')
                             .snapshots(),
                         builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
                             return const Center(
                               child: CircularProgressIndicator(),
                             );
-                          } else {
+                          }
+                          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                            return const Center(
+                              child: Text(
+                                "No Todos",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            );
+                          }
+                          else {
                             final todos = snapshot.data!.docs;
                             return Stack(children: [
                               ListView.builder(
