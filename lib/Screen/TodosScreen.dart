@@ -408,15 +408,4 @@ class _TodosScreenState extends State<TodosScreen> {
       )),
     );
   }
-
-  Future _showdialogbox() {
-    return showDialog(context: context, builder: (context) {
-      return const Center(
-        child: AlertDialog(
-          title: Text("Enter time and Name"),
-          alignment: Alignment.center,
-        ),
-      );
-    },);
-  }
 }
